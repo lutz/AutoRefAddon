@@ -77,11 +77,11 @@ namespace AutoRef
         public static void RemoveIncludes(this MacroEditorForm macroEditorForm)
         {
             var codeLines = macroEditorForm.MacroCode.Split(new char[] { '\n' }).ToList();
-            codeLines.RemoveAll(line => line.StartsWith("// #include"));
+            codeLines.RemoveAll(line => line.StartsWith(Addon.COMMAND));
             macroEditorForm.MacroCode = string.Join("\n", codeLines);
         }
 
-        public static IEnumerable<string> ParseIncludes(this MacroEditorForm macroEditorForm) => macroEditorForm.MacroCode.Split(new char[] { '\n' }).Where(line => line.StartsWith("// #include")).Select(incl => incl.Substring(incl.IndexOf("\"")).Trim().Trim('\"')).ToList();
+        public static IEnumerable<string> ParseIncludes(this MacroEditorForm macroEditorForm) => macroEditorForm.MacroCode.Split(new char[] { '\n' }).Where(line => line.StartsWith(Addon.COMMAND)).Select(incl => incl.Substring(incl.IndexOf("\"")).Trim().Trim('\"')).ToList();
 
         #endregion
     }

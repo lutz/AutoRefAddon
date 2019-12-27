@@ -10,6 +10,13 @@ namespace AutoRef
 {
     public class Addon : CitaviAddOn
     {
+        #region Constants
+
+        public static string COMMAND = "// autoref";
+        public static string COMMENT_FORMAT = "// autoref \"{0}\"\r";
+
+        #endregion
+
         #region Fields
 
         IEnumerable<string> _defaultAssemblies;
@@ -57,14 +64,14 @@ namespace AutoRef
             {
                 var codeLines = macroEditorForm.GetReferencedAssemblies()
                                                        .Where(assembly => _defaultAssemblies.FirstOrDefault(a => a.Equals(assembly, StringComparison.OrdinalIgnoreCase)) == null)
-                                                       .Select(ase => $"// #include \"{ase}\"\r")
+                                                       .Select(ase => string.Format(COMMENT_FORMAT, ase))
                                                        .ToList();
 
                 codeLines.AddRange(macroEditorForm.MacroCode.Split(new char[] { '\n' }).ToList());
                 macroEditorForm.MacroCode = string.Join("\n", codeLines);
             }
         }
-        
+
         void OnAfterPerformingCommand(MacroEditorForm macroEditorForm, BeforePerformingCommandEventArgs e)
         {
             switch (e.Key)
