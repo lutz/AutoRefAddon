@@ -59,7 +59,7 @@ namespace AutoRef
 
         void OnBeforePerformingCommand(MacroEditorForm macroEditorForm, BeforePerformingCommandEventArgs e)
         {
-            if (e.Key.Equals("Save", StringComparison.OrdinalIgnoreCase))
+            if (e.Key.Equals("Save", StringComparison.OrdinalIgnoreCase) || e.Key.Equals("SaveAs", StringComparison.OrdinalIgnoreCase))
             {
                 var codeLines = macroEditorForm.GetReferencedAssemblies()
                                                .Where(assembly => _defaultAssemblies.FirstOrDefault(a => a.Equals(assembly, StringComparison.OrdinalIgnoreCase)) == null)
@@ -76,6 +76,7 @@ namespace AutoRef
             switch (e.Key)
             {
                 case "Save":
+                case "SaveAs":
                     {
                         macroEditorForm.RemoveAutoRefComments();
                     }
