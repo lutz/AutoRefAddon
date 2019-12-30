@@ -12,7 +12,6 @@ namespace AutoRef
     {
         #region Constants
 
-        public static string COMMAND = "// autoref";
         public static string COMMENT_FORMAT = "// autoref \"{0}\"\r";
 
         #endregion
@@ -63,9 +62,9 @@ namespace AutoRef
             if (e.Key.Equals("Save", StringComparison.OrdinalIgnoreCase))
             {
                 var codeLines = macroEditorForm.GetReferencedAssemblies()
-                                                       .Where(assembly => _defaultAssemblies.FirstOrDefault(a => a.Equals(assembly, StringComparison.OrdinalIgnoreCase)) == null)
-                                                       .Select(ase => string.Format(COMMENT_FORMAT, ase))
-                                                       .ToList();
+                                               .Where(assembly => _defaultAssemblies.FirstOrDefault(a => a.Equals(assembly, StringComparison.OrdinalIgnoreCase)) == null)
+                                               .Select(ase => string.Format(COMMENT_FORMAT, ase.AssemblyPathToCommentPart(macroEditorForm)))
+                                               .ToList();
 
                 codeLines.AddRange(macroEditorForm.MacroCode.Split(new char[] { '\n' }).ToList());
                 macroEditorForm.MacroCode = string.Join("\n", codeLines);
@@ -78,14 +77,14 @@ namespace AutoRef
             {
                 case "Save":
                     {
-                        macroEditorForm.RemoveIncludes();
+                        macroEditorForm.RemoveAutoRefComments();
                     }
                     break;
                 case "Open":
                     {
-                        var includes = macroEditorForm.ParseIncludes();
-                        macroEditorForm.ReferenceIncludes(includes);
-                        macroEditorForm.RemoveIncludes();
+                        var references = macroEditorForm.ParseAutoRefComments();
+                        macroEditorForm.AddReferences(references);
+                        macroEditorForm.RemoveAutoRefComments();
                     }
                     break;
                 default:
