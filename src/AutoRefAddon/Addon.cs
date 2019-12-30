@@ -10,12 +10,6 @@ namespace AutoRef
 {
     public class Addon : CitaviAddOn
     {
-        #region Constants
-
-        public static string COMMENT_FORMAT = "// autoref \"{0}\"\r";
-
-        #endregion
-
         #region Fields
 
         IEnumerable<string> _defaultAssemblies;
