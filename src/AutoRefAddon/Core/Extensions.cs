@@ -5,6 +5,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -72,6 +73,17 @@ namespace AutoRef
             return compilerParameters?.ReferencedAssemblies.Cast<string>().ToList();
         }
 
+        public static void AddAutoRefComments(this MacroEditorForm macroEditorForm, IEnumerable<string> assemblies)
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var assembly in assemblies)
+            {
+                stringBuilder.AppendLine($"// autoref \"{ConvertToCommentPath(assembly,macroEditorForm)}\"\r");
+            }
+            stringBuilder.AppendLine(macroEditorForm.MacroCode);
+            macroEditorForm.MacroCode = stringBuilder.ToString().Trim();
+        }
+
         public static void AddReferences(this MacroEditorForm macroEditorForm, IEnumerable<string> references)
         {
             if (references.Count() == 0) return;
@@ -89,7 +101,7 @@ namespace AutoRef
         {
             var codeLines = macroEditorForm.MacroCode.Split(new char[] { '\n' }).ToList();
             codeLines.RemoveAll(line => Regex.IsMatch(line, regex_pattern));
-            macroEditorForm.MacroCode = string.Join("\n", codeLines);
+            macroEditorForm.MacroCode = string.Join("\n", codeLines).Trim();
         }
 
         public static IEnumerable<string> ParseAutoRefComments(this MacroEditorForm macroEditorForm)
@@ -97,13 +109,13 @@ namespace AutoRef
             return Regex.Matches(macroEditorForm.MacroCode, regex_pattern)
                         .Cast<Match>()
                         .Where(match => match.Groups.Count >= 2)
-                        .Select(match => CommentMatchToAssemblyPath(macroEditorForm, match.Groups[1].Value))
+                        .Select(match => ConvertToAssemblyPath(macroEditorForm, match.Groups[1].Value))
                         .Where(path => !string.IsNullOrEmpty(path))
                         .Distinct(StringEqualityComparer.OrdinalIgnoreCase)
                         .ToList();
         }
 
-        static string CommentMatchToAssemblyPath(MacroEditorForm macroEditorForm, string match)
+        static string ConvertToAssemblyPath(MacroEditorForm macroEditorForm, string match)
         {
             if (string.IsNullOrEmpty(match)) return null;
             if (System.IO.Path.IsPathRooted(match) && System.IO.File.Exists(match)) return match;
@@ -112,7 +124,7 @@ namespace AutoRef
             return null;
         }
 
-        public static string AssemblyPathToCommentPart(this string path, MacroEditorForm macroEditorForm)
+        static string ConvertToCommentPath(this string path, MacroEditorForm macroEditorForm)
         {
             if (!System.IO.Path.IsPathRooted(path) || !System.IO.File.Exists(path)) return path;
             if (path.StartsWith(macroEditorForm.GetMacroDirectory(), StringComparison.OrdinalIgnoreCase)) return System.IO.Path.GetFileName(path);

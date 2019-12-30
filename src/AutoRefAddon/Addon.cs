@@ -61,13 +61,9 @@ namespace AutoRef
         {
             if (e.Key.Equals("Save", StringComparison.OrdinalIgnoreCase) || e.Key.Equals("SaveAs", StringComparison.OrdinalIgnoreCase))
             {
-                var codeLines = macroEditorForm.GetReferencedAssemblies()
-                                               .Where(assembly => _defaultAssemblies.FirstOrDefault(a => a.Equals(assembly, StringComparison.OrdinalIgnoreCase)) == null)
-                                               .Select(ase => string.Format(COMMENT_FORMAT, ase.AssemblyPathToCommentPart(macroEditorForm)))
-                                               .ToList();
+                var assemblies = macroEditorForm.GetReferencedAssemblies().Except(_defaultAssemblies, StringEqualityComparer.OrdinalIgnoreCase).ToList();
 
-                codeLines.AddRange(macroEditorForm.MacroCode.Split(new char[] { '\n' }).ToList());
-                macroEditorForm.MacroCode = string.Join("\n", codeLines);
+                macroEditorForm.AddAutoRefComments(assemblies);
             }
         }
 
@@ -101,14 +97,11 @@ namespace AutoRef
 
         void Forms_Added(object sender, ListChangedEventArgs args)
         {
-            foreach (var form in args.Forms)
+            foreach (var macroEditorForm in args.Forms.OfType<MacroEditorForm>())
             {
-                if (form is MacroEditorForm macroEditorForm)
-                {
-                    ChangedToolClickHandler(macroEditorForm);
+                ChangedToolClickHandler(macroEditorForm);
 
-                    if (_defaultAssemblies == null) _defaultAssemblies = macroEditorForm.GetReferencedAssemblies();
-                }
+                if (_defaultAssemblies == null) _defaultAssemblies = macroEditorForm.GetReferencedAssemblies();
             }
         }
 
