@@ -1,9 +1,0 @@
-{
-  "id": "62430636-4b75-463e-9321-502df7a8a7a9",
-  "createdOn": "2020-01-15T00:00:00",
-  "modifiedOn": "2020-01-15T00:00:00",
-  "url": "https://github.com/lutz/AutoRefAddon",
-  "author": "Daniel Lutz",
-  "description": "This add-on adds a new function to the MacroEditor of Citavi to include directives of custom referenced assemblies. Everytime the user save the macro code the addon adds comments to the code file. When the user reopen the macro the comments will be removed and the assembly will be add to the internal macro editor compiler service.",
-  "downloadLink": "https://github.com/lutz/AutoRefAddon/releases/download/v1.0/AutoRefAddon.zip"
-}
