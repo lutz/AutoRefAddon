@@ -1,57 +1,25 @@
-﻿using Infragistics.Win.UltraWinToolbars;
-using SwissAcademic.Citavi.Shell;
+﻿using SwissAcademic.Citavi.Shell;
 using SwissAcademic.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace AutoRef
 {
-    public class Addon : CitaviAddOn
+    public class Addon : CitaviAddOnEx<MacroEditorForm>
     {
-        #region Fields
+        // Fields
 
         IEnumerable<string> _defaultAssemblies;
 
-        #endregion
+        // Methods
 
-        #region Constructors
-
-        public Addon() => Application.OpenForms.AddListChangedEventHandler(Forms_Added, ListChangedType.Added);
-
-        #endregion
-
-        #region Properties
-        public override AddOnHostingForm HostingForm => AddOnHostingForm.None;
-
-        #endregion
-
-        #region Methods
-
-        void ChangedToolClickHandler(MacroEditorForm form)
+        public override void OnHostingFormLoaded(MacroEditorForm macroEditorForm)
         {
-            var toolbarsManager = form.GetToolbarsManager();
-            var registredDelegates = toolbarsManager?.RemoveEventHandlersFromEvent("ToolClick");
-            ToolClickEventHandler clickEventHandler = (sender, args) =>
-            {
-                var e = new BeforePerformingCommandEventArgs(form, args.Tool.Key, args.ListToolItem?.Key, null);
-                OnBeforePerformingCommand(form, e);
-                if (!e.Handled)
-                {
-                    foreach (var del in registredDelegates)
-                    {
-                        del.DynamicInvoke(sender, args);
-                    }
-
-                    OnAfterPerformingCommand(form, e);
-                }
-            };
-
-            toolbarsManager?.AddEventHandlerForEvent("ToolClick", clickEventHandler);
+            _defaultAssemblies = _defaultAssemblies ?? macroEditorForm.GetReferencedAssemblies();
         }
 
-        void OnBeforePerformingCommand(MacroEditorForm macroEditorForm, BeforePerformingCommandEventArgs e)
+        public override void OnBeforePerformingCommand(MacroEditorForm macroEditorForm, BeforePerformingCommandEventArgs e)
         {
             if (e.Key.Equals("Save", StringComparison.OrdinalIgnoreCase) || e.Key.Equals("SaveAs", StringComparison.OrdinalIgnoreCase))
             {
@@ -61,7 +29,7 @@ namespace AutoRef
             }
         }
 
-        void OnAfterPerformingCommand(MacroEditorForm macroEditorForm, BeforePerformingCommandEventArgs e)
+        public override void OnAfterPerformingCommand(MacroEditorForm macroEditorForm, AfterPerformingCommandEventArgs e)
         {
             switch (e.Key)
             {
@@ -81,24 +49,6 @@ namespace AutoRef
                 default:
                     break;
             }
-
         }
-
-
-        #endregion
-
-        #region EventHandler
-
-        void Forms_Added(object sender, ListChangedEventArgs args)
-        {
-            foreach (var macroEditorForm in args.Forms.OfType<MacroEditorForm>())
-            {
-                ChangedToolClickHandler(macroEditorForm);
-
-                if (_defaultAssemblies == null) _defaultAssemblies = macroEditorForm.GetReferencedAssemblies();
-            }
-        }
-
-        #endregion
     }
 }

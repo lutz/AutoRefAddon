@@ -5,30 +5,22 @@ namespace AutoRef
 {
     class StringEqualityComparer : IEqualityComparer<string>
     {
-        #region Fields
+        // Fields
 
-        StringComparison _stringComparison;
+        readonly StringComparison _stringComparison;
 
-        #endregion
-
-        #region Constructors
+        //  Constructors
 
         private StringEqualityComparer(StringComparison stringComparison) => _stringComparison = stringComparison;
 
-        #endregion
-
-        #region Properties
+        // Properties
 
         public static StringEqualityComparer OrdinalIgnoreCase => new StringEqualityComparer(StringComparison.OrdinalIgnoreCase);
 
-        #endregion
-
-        #region Methods
+        // Methods
 
         public bool Equals(string x, string y) => x.Equals(y, _stringComparison);
 
         public int GetHashCode(string obj) => obj.GetHashCode();
-
-        #endregion
     }
 }

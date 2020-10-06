@@ -1,5 +1,4 @@
 ﻿using SwissAcademic.Citavi.Shell;
-using SwissAcademic.Controls;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -13,7 +12,7 @@ namespace AutoRef
 {
     internal static class Extensions
     {
-        #region Fields
+        // Fields
 
         static readonly BindingFlags fieldBindingFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         static readonly BindingFlags privateMethodBindingFlags = BindingFlags.InvokeMethod | BindingFlags.NonPublic;
@@ -22,42 +21,7 @@ namespace AutoRef
 
         static readonly string regex_pattern = "\\/\\/[ ]*autoref[ ]*\"(.+)\"";
 
-        #endregion
-
-        #region Methods
-
-        public static ToolbarsManager GetToolbarsManager<T>(this T form) where T : FormBase => form.GetType().GetField("toolbarsManager", fieldBindingFlags)?.GetValue(form) as ToolbarsManager;
-
-        public static IReadOnlyList<Delegate> RemoveEventHandlersFromEvent(this ToolbarsManager toolbarsManager, string eventName)
-        {
-
-            var eventsPropertyInfo = toolbarsManager
-                                    .GetType()
-                                    .GetProperties(staticEventBindingFlags)
-                                    .Where(p => p.Name.Equals("Events", StringComparison.OrdinalIgnoreCase) && p.PropertyType.Equals(typeof(Infragistics.Shared.EventHandlerDictionary)))
-                                    .FirstOrDefault();
-
-            var eventHandlerList = eventsPropertyInfo?
-                                   .GetValue(toolbarsManager, new object[] { }) as Infragistics.Shared.EventHandlerDictionary;
-
-            var eventFieldInfo = typeof(ToolbarsManager)
-                                  .BaseType
-                                  .GetFields(staticFieldBindingFlags)
-                                  .FirstOrDefault(fi => fi.Name.Equals("Event_" + eventName, StringComparison.OrdinalIgnoreCase));
-
-            var eventKey = eventFieldInfo.GetValue(toolbarsManager);
-
-            var currentEventHandler = eventHandlerList[eventKey] as Delegate;
-            Delegate[] currentRegistredHandlers = currentEventHandler.GetInvocationList();
-            foreach (var item in currentRegistredHandlers)
-            {
-                toolbarsManager.GetType().GetEvent(eventName).RemoveEventHandler(toolbarsManager, item);
-            }
-
-            return currentRegistredHandlers.ToList().AsReadOnly();
-        }
-
-        public static void AddEventHandlerForEvent(this ToolbarsManager toolbarsManager, string eventName, Delegate @delegate) => toolbarsManager.GetType().GetEvent(eventName).AddEventHandler(toolbarsManager, @delegate);
+        // Methods
 
         static string GetMacroDirectory(this MacroEditorForm macroEditorForm)
         {
@@ -78,7 +42,7 @@ namespace AutoRef
             var stringBuilder = new StringBuilder();
             foreach (var assembly in assemblies)
             {
-                stringBuilder.AppendLine($"// autoref \"{ConvertToCommentPath(assembly,macroEditorForm)}\"\r");
+                stringBuilder.AppendLine($"// autoref \"{ConvertToCommentPath(assembly, macroEditorForm)}\"\r");
             }
             stringBuilder.AppendLine(macroEditorForm.MacroCode);
             macroEditorForm.MacroCode = stringBuilder.ToString().Trim();
@@ -131,7 +95,5 @@ namespace AutoRef
             if (path.StartsWith(Application.StartupPath, StringComparison.OrdinalIgnoreCase)) return System.IO.Path.GetFileName(path);
             return path;
         }
-
-        #endregion
     }
 }
